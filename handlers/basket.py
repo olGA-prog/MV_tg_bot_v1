@@ -3,13 +3,10 @@ import re
 import threading
 import time
 from datetime import datetime
-from gc import callbacks
-from plistlib import loads
 
-from telebot import types
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton, InputMedia, \
     Update, LabeledPrice
-from telegram._utils import markup
+
 
 from bot_setting import bot
 from database import postgres
@@ -67,9 +64,9 @@ def send_to_user_products(call, edit=True):
         for item in products_and_count:
             count = item["count_product"]
             product_info, unit = postgres.get_product_full_info(item["products_id"])
-            caption += f"Название товара: {product_info["name"]}  \nЦена за {unit}. : {product_info["price"]}.00 руб.  \nВыбранное количество: {count} {unit}. \nОбщая стоимость за товар: {int(count)* int(product_info["price"])}.00 руб.\n\n\n\n"
+            caption += f"Название товара: {product_info['name']}  \nЦена за {unit}. : {product_info['price']}.00 руб.  \nВыбранное количество: {count} {unit}. \nОбщая стоимость за товар: {int(count)* int(product_info['price'])}.00 руб.\n\n\n\n"
             fullprice += int(count)* int(product_info["price"])
-            markup.add(InlineKeyboardButton(text=f" {product_info["name"]}  {int(count)* int(product_info["price"])}.00 руб." , callback_data=f'product_{item["products_id"]}'))
+            markup.add(InlineKeyboardButton(text=f" {product_info['name']}  {int(count)* int(product_info['price'])}.00 руб." , callback_data=f'product_{item["products_id"]}'))
         markup.add(InlineKeyboardButton(text="Удалить товары", callback_data='delete_product_to_basket'),
                    InlineKeyboardButton(text="Изменить количество", callback_data='edit_count_product_to_basket'), )
         markup.add(InlineKeyboardButton(text="Оформить заказ", callback_data='order_add'))
@@ -87,10 +84,10 @@ def send_list_delete_product_to_basket(call):
         product_id = item["products_id"]
         count = item["count_product"]
         product_info, unit = postgres.get_product_full_info(product_id)
-        print(f" item_id {item["products_id"]}")
+        print(f" item_id {item['products_id']}")
         markup.add(
-            InlineKeyboardButton(text=f" {product_info["name"]}  {int(count) * int(product_info["price"])}.00 руб.",
-                                 callback_data=f'prod_delete_{item["products_id"]}'))
+            InlineKeyboardButton(text=f" {product_info['name']}  {int(count) * int(product_info['price'])}.00 руб.",
+                                 callback_data=f"prod_delete_{item['products_id']}"))
     markup.add(InlineKeyboardButton(text="Удалить все товары", callback_data='delete_product_all'))
     markup.add(InlineKeyboardButton(text="Назад", callback_data='return_my_product'))
     bot.send_message(call.from_user.id, "Выберите товар, который хотите удалить:", reply_markup=markup, parse_mode='markdown')
@@ -120,8 +117,8 @@ def send_list_product_edit_to_basket(call):
         count = item["count_product"]
         product_info, unit = postgres.get_product_full_info(product_id)
         markup.add(
-            InlineKeyboardButton(text=f" {product_info["name"]} Выбранное количество: {int(count)}  {int(count) * int(product_info["price"])}.00 руб.",
-                                 callback_data=f'ed_product_count_{item["products_id"]}'))
+            InlineKeyboardButton(text=f" {product_info['name']} Выбранное количество: {int(count)}  {int(count) * int(product_info['price'])}.00 руб.",
+                                 callback_data=f"ed_product_count_{item['products_id']}"))
     markup.add(InlineKeyboardButton(text="Назад", callback_data='return_my_product'))
     bot.send_message(call.from_user.id, "Выберите товар, который хотите изменить:", reply_markup=markup,
                      parse_mode='markdown')
@@ -156,7 +153,7 @@ def send_profile_info(message):
     if user_info['phone_number'] is not None:
         phone_number_user = user_info['phone_number']
     caption = f"Это ваш личный кабинет. \nЗдесь показана информация о вас, которую вы можете редактировать!\n\n\nНа данный момент ваши данные такие:\n\n"
-    caption_info = f"Имя: <b>{user_info["name"]}</b> \nАдрес: <b>{adress_user}</b> \nНомер телефона: <b>{phone_number_user}</b>\n"
+    caption_info = f"Имя: <b>{user_info['name']}</b> \nАдрес: <b>{adress_user}</b> \nНомер телефона: <b>{phone_number_user}</b>\n"
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton(text="Изменить имя", callback_data='send_edit_message_name'),
                InlineKeyboardButton(text="Изменить адрес", callback_data='send_edit_message_adress'))
@@ -268,9 +265,9 @@ def show_user_and_cart_info(message):
         for item in products_and_count:
             count = item["count_product"]
             product_info, unit = postgres.get_product_full_info(item["products_id"])
-            caption += f"Название товара: {product_info["name"]}  \nЦена за {unit}. : {product_info["price"]}.00 руб.  \nВыбранное количество: {count} {unit}. \nОбщая стоимость за товар: {int(count) * int(product_info["price"])}.00 руб.\n\n\n\n"
+            caption += f"Название товара: {product_info['name']}  \nЦена за {unit}. : {product_info['price']}.00 руб.  \nВыбранное количество: {count} {unit}. \nОбщая стоимость за товар: {int(count) * int(product_info['price'])}.00 руб.\n\n\n\n"
             fullprice += int(count) * int(product_info["price"])
-        caption_user = f"Информация о пользователе:\n\nИмя: <b>{user_info["name"]}</b> \nАдрес: <b>{user_info["adress"]}</b> \nНомер телефона: <b>{user_info["phone_number"]}</b>\n\n\n"
+        caption_user = f"Информация о пользователе:\n\nИмя: <b>{user_info['name']}</b> \nАдрес: <b>{user_info['adress']}</b> \nНомер телефона: <b>{user_info['phone_number']}</b>\n\n\n"
         markup.add(InlineKeyboardButton(text="Подтвердить", callback_data=f"order_done_{fullprice}_{basket_id}"))
         markup.add(InlineKeyboardButton(text="Отменить оформление", callback_data='return_my_product'))
         bot.send_message(message.from_user.id,

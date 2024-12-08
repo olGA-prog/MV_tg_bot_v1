@@ -74,7 +74,7 @@ def send_products_by_types_from_category(call, edit=False):
     if not edit:
         try:
             with open(f'image/category/{img_category}', 'rb') as img:
-                bot.send_photo(call.from_user.id, img, f"Категория:<b>  {category_current[0]["name"]}</b> \n\n<u><i>{category_current[0]["description"]}</i></u> \n \nВыберите тип товара:", parse_mode='html',  reply_markup=markup)
+                bot.send_photo(call.from_user.id, img, f"Категория:<b>  {category_current[0]['name']}</b> \n\n<u><i>{category_current[0]['description']}</i></u> \n \nВыберите тип товара:", parse_mode='html',  reply_markup=markup)
         except Exception as e:
             print(str(e))
     else:
@@ -91,7 +91,7 @@ def send_products_by_types(call):
     markup = InlineKeyboardMarkup()
     for item in products:
         print(item)
-        markup.add(InlineKeyboardButton(text=f"Название: {item["name"]}  Цена: {item["price"]}.00 руб/{item["unit"]}",  callback_data=f'product_{item["id"]}')) # изменить чтобы возвращалось правильное значение с названием категории
+        markup.add(InlineKeyboardButton(text=f"Название: {item['name']}  Цена: {item['price']}.00 руб/{item['unit']}",  callback_data=f"product_{item['id']}"))
     markup.add(InlineKeyboardButton(text="Назад", callback_data="back_to_types"))
     bot.edit_message_reply_markup(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                   reply_markup=markup)
@@ -103,7 +103,7 @@ def send_products_full_info(call):
 
     product_id = call.data[8:]
     product_info, unit_product = postgres.get_product_full_info(int(product_id))
-    description = f'Название товара: <b>{product_info['name']}</b>\n\n\nЦена: <u>{product_info['price']}.00 руб/{unit_product}</u>\nКоличество товара в наличии: {product_info['count']}\nОписание товара: <i>{product_info['description']}</i> '
+    description = f"Название товара: <b>{product_info['name']}</b>\n\n\nЦена: <u>{product_info['price']}.00 руб/{unit_product}</u>\nКоличество товара в наличии: {product_info['count']}\nОписание товара: <i>{product_info['description']}</i> "
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton(text="Добавить в корзину", callback_data=f"add_to_basket_{product_id}"))
     markup.add(InlineKeyboardButton(text="Назад", callback_data="back_to_product"))
